@@ -1,6 +1,7 @@
 {
   "name": "mymarkmapapp",
   "version": "0.0.1",
+  "homepage": "https://xenocoderce.github.io/myMarkmap/",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
