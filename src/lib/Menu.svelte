@@ -29,6 +29,131 @@
 	function menuView() {
 		show.update(n => false);
 	}
+	
+	
+	// Fonction pour récupérer le texte sélectionné
+	function getSelectedText() {
+		let text = "";
+		if (window.getSelection) {
+			text = window.getSelection().toString();
+		} else if (document.selection && document.selection.type !== "Control") {
+			text = document.selection.createRange().text;
+		}
+		return text;
+	}
+	
+	// Fonction pour remplacer le texte sélectionné
+	function replaceSelectedText(replacementText) {
+		const selection = window.getSelection();
+		if (selection.rangeCount > 0) {
+			const range = selection.getRangeAt(0);
+			range.deleteContents();
+			range.insertNode(document.createTextNode(replacementText));
+			// Ajuster la sélection pour inclure le texte inséré
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+	}
+
+
+	async function AI(query) {
+	
+	
+		const url = "https://corsproxy.io/?https://www.phorm.ai/api/db/generate_answer";
+		const headers = {
+			"authority": "www.phorm.ai",
+			"method": "POST",
+			"path": "/api/db/generate_answer",
+			"scheme": "https",
+			"accept": "*/*",
+			"accept-encoding": "gzip, deflate, br, zstd",
+			"accept-language": "fr,fr-FR;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,ko;q=0.5",
+			"origin": "https://www.phorm.ai",
+			"priority": "u=1, i",
+			"sec-ch-ua": '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
+			"sec-ch-ua-mobile": "?0",
+			"sec-ch-ua-platform": '"Windows"',
+			"sec-fetch-dest": "empty",
+			"sec-fetch-mode": "cors",
+			"sec-fetch-site": "same-origin",
+			"Content-Type": "application/json"
+		};
+		
+		query = "Tu es un assistant IA qui aide à générer des listes Markmap qui permettent de générer des cartes mentales personnalisées à partir de contenu Markdown. Je vais te donner une instruction et tu vas devoir me répondre le code markdown et uniquement le code markdown, ne fais pas de commentaire en dehors du code. Voici mon instruction : " + query + " Tu dois faire des phrases synthétiques. Tu dois utiliser les outils de mise en page Markdown pour rendre le contenu agréable à lire (mets les mots les plus importants de la phrase en gras avec le double **, en italique avec le simple *, utilise des emojis etc). C'est pour des enfants de 16 ans donc sois pédagogue. Tu dois répondre en Français uniquement !";
+		
+		const payload = {
+			"query": query,
+			"project": "bcad2197-c0ff-4a4e-85e8-c8d4d63505b1",
+			"repos": ["https://github.com/xenocoderce/mymarkmap/tree/main"]
+		};
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: headers,
+			body: JSON.stringify(payload)
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder('utf-8');
+		let foundAnswer = false;
+		let result = '';
+
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			let decodedChunk = decoder.decode(value, { stream: true });
+			if (foundAnswer) {
+				result += decodedChunk;
+			} else if (decodedChunk.includes('"answer":')) {
+				foundAnswer = true;
+				result += decodedChunk.substring(decodedChunk.indexOf('"answer":') + 9);
+			}
+		}
+
+		
+		result = result.replace(/[{}`]/g, '');
+		result = result.replace(/```/g, '');
+		result = result.replace(/\\n/g, "\n");
+		result = result.slice(1, -1);
+		result = result.substring(1);
+
+		return result;
+	}
+
+	
+
+	// Fonction appelée lorsque menuAI est cliqué
+	function menuAI(event) {
+		event.preventDefault();
+		const selectedText = getSelectedText();
+		console.log("Texte sélectionné :", selectedText);
+		// Comment s'en servir
+		const query = selectedText;		
+		
+
+		AI(query).then(response => replaceSelectedText(response)).catch(console.error);		
+		
+		// Focaliser l'élément avec l'ID "editor"
+		var editorElement = document.getElementById("editor");
+		console.log(editorElement);
+		editorElement.focus();
+
+		// Simuler un clic gauche
+		editorElement.click();
+
+		// Simuler une pression sur la touche Entrée
+		var event = new KeyboardEvent('keydown', {
+		  'keyCode': 13,
+		  'which': 13
+		});
+		editorElement.dispatchEvent(event);
+	}
+
 
 	function menuSaveAsSvg() {
 		mindmapSaveAsSvg.update(n => true)
@@ -50,7 +175,6 @@
 	}
 
 	function handleKeydown(event) {
-		console.log(event)
 		if (!$show) {
 			if (event.key === 'e') {
 				event.preventDefault();
@@ -130,7 +254,17 @@
 	}
 
 	function markdownToHTML(markdown) {
-		markdown = markdown.replace(/-/g, '');
+
+		if (!markdown.includes("iframe")) {
+			markdown = markdown.replace(/-/g, '');
+		}else{
+			if (markdown.startsWith("  - ")) {
+				markdown = markdown.substring(1);
+				markdown = markdown.substring(1);
+				markdown = markdown.substring(1);
+				markdown = markdown.substring(1);
+			}
+		}
 		// Replace headers
 		markdown = markdown.replace(/^(#+)(.*)$/gm, function(match, p1, p2) {
 			var level = p1.length;
@@ -183,6 +317,7 @@
 	<nav id="menu" bind:this={menu}>
 		{#if $show}
 			<a href="#edit" on:click|preventDefault={menuView}>👓</a>
+			<a href="#edit" on:click|preventDefault={menuAI}>🪄</a>
 		{:else}
 			<a href="#edit" on:click|preventDefault={menuEdit}>✒️</a>
 		{/if}
@@ -206,7 +341,7 @@
 	}
 
 	#menu a {
-		margin-left: 1em;
+		margin-left: 0em;
 		text-decoration: none;
 	}
 

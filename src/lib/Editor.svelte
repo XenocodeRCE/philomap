@@ -70,7 +70,7 @@
 	{#await CodeJar}
 		<div>Éditeur en cours de chargement</div>
 	{:then}
-		<pre bind:this={editor} contenteditable="true" bind:textContent={$markdownSource} class:hidden={!$show} class="editor"></pre>
+		<pre id="editor" bind:this={editor} contenteditable="true" bind:textContent={$markdownSource} class:hidden={!$show} class="editor"></pre>
 	{:catch error}
 		<textarea bind:value={$markdownSource} rows="20" cols="50" class:hidden={!$show}></textarea>
 	{/await}
