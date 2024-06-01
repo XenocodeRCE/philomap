@@ -58,43 +58,37 @@
 
 	async function AI(query) {
 	
-	
-		const url = "https://corsproxy.io/?https://www.phorm.ai/api/db/generate_answer";
-		const headers = {
-			"authority": "www.phorm.ai",
-			"method": "POST",
-			"path": "/api/db/generate_answer",
-			"scheme": "https",
+		query = "Tu es un assistant IA qui aide à générer des listes Markmap qui permettent de générer des cartes mentales personnalisées à partir de contenu Markdown. Je vais te donner une instruction et tu vas devoir me répondre le code markdown et uniquement le code markdown, ne fais pas de commentaire en dehors du code. Voici mon instruction : " + query + " Tu dois faire des phrases synthétiques. Tu dois utiliser les outils de mise en page Markdown pour rendre le contenu agréable à lire (mets les mots les plus importants de la phrase en gras avec le double **, en italique avec le simple *, utilise des emojis etc). C'est pour des enfants de 16 ans donc sois pédagogue. Tu dois répondre en Français uniquement !";
+			
+		
+	  try {
+		const response = await fetch("https://cors-anywhere.herokuapp.com/https://www.phorm.ai/api/db/generate_answer", {
+		  headers: {
 			"accept": "*/*",
-			"accept-encoding": "gzip, deflate, br, zstd",
 			"accept-language": "fr,fr-FR;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,ko;q=0.5",
-			"origin": "https://www.phorm.ai",
+			"content-type": "application/json",
 			"priority": "u=1, i",
-			"sec-ch-ua": '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
+			"sec-ch-ua": "\"Microsoft Edge\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"",
 			"sec-ch-ua-mobile": "?0",
-			"sec-ch-ua-platform": '"Windows"',
+			"sec-ch-ua-platform": "\"Windows\"",
 			"sec-fetch-dest": "empty",
 			"sec-fetch-mode": "cors",
-			"sec-fetch-site": "same-origin",
-			"Content-Type": "application/json"
-		};
-		
-		query = "Tu es un assistant IA qui aide à générer des listes Markmap qui permettent de générer des cartes mentales personnalisées à partir de contenu Markdown. Je vais te donner une instruction et tu vas devoir me répondre le code markdown et uniquement le code markdown, ne fais pas de commentaire en dehors du code. Voici mon instruction : " + query + " Tu dois faire des phrases synthétiques. Tu dois utiliser les outils de mise en page Markdown pour rendre le contenu agréable à lire (mets les mots les plus importants de la phrase en gras avec le double **, en italique avec le simple *, utilise des emojis etc). C'est pour des enfants de 16 ans donc sois pédagogue. Tu dois répondre en Français uniquement !";
-		
-		const payload = {
-			"query": query,
-			"project": "bcad2197-c0ff-4a4e-85e8-c8d4d63505b1",
-			"repos": ["https://github.com/xenocoderce/mymarkmap/tree/main"]
-		};
-
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: headers,
-			body: JSON.stringify(payload)
+			"sec-fetch-site": "same-origin"
+		  },
+		  referrer: "https://www.phorm.ai/query?projectId=bcad2197-c0ff-4a4e-85e8-c8d4d63505b1&threadId=b9c3ec4a-5bd7-461b-bc66-54c1e9a7a469",
+		  referrerPolicy: "strict-origin-when-cross-origin",
+		  body: JSON.stringify({
+			query: query,
+			project: "bcad2197-c0ff-4a4e-85e8-c8d4d63505b1",
+			repos: ["https://github.com/xenocoderce/mymarkmap/tree/main"]
+		  }),
+		  method: "POST",
+		  mode: "cors",
+		  credentials: "omit"
 		});
 
 		if (!response.ok) {
-			throw new Error('Network response was not ok');
+		  throw new Error('Network response was not ok ' + response.statusText);
 		}
 
 		const reader = response.body.getReader();
@@ -123,7 +117,14 @@
 		result = result.substring(1);
 
 		return result;
+		
+	  } catch (error) {
+		console.error('There has been a problem with your fetch operation:', error);
+		throw error;
+	  }
 	}
+
+
 
 	
 
