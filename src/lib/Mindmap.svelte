@@ -71,12 +71,13 @@
 		});
 
 		const options = {
-			duration: 0,
-			maxWidth: maxWidth,
-			spacingVertical: 15,
-			paddingX: 20,
-			autoFit: false,
-			initialExpandLevel: initialExpandLevel,
+			  duration: 0,
+			  maxWidth: maxWidth,
+			  spacingVertical: 15,
+			  paddingX: 20,
+			  autoFit: false,
+			  initialExpandLevel: initialExpandLevel,
+			  layout: 'radial',  // Ajoute l'option pour un layout radial
 		}
 		const optionsJSON = deriveOptions({
 			color: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#8c564b", "#e377c2", "#17becf", "#bcbd22"],
@@ -103,39 +104,49 @@
 
 	})
 
-	function handleHide(event) {
-			let targetElement = event.target
-			const elementType = targetElement.tagName
-			let searchDivCount = 0;
-			if (elementType == 'SVG') {
-				return
-			} else {
-				if (elementType =='circle' && event.altKey) {
-					const parentElement = targetElement.parentElement
-					const depth = parentElement.getAttribute('data-depth');
-					const unfoldedBranches = mindmap.querySelectorAll('g[data-depth="'+depth+'"]:not(.markmap-fold)')
-					for (const branch of unfoldedBranches) {
-						const circle = branch.querySelector('circle');
-						if (circle) {circle.dispatchEvent(new MouseEvent("click"));}
-					}
-						targetElement.dispatchEvent(new MouseEvent("click"));
-					return
-				}
-				while (targetElement && targetElement.tagName !== 'DIV' && searchDivCount < 5) {
-					targetElement = targetElement.parentElement;
-					searchDivCount++;
-				}
+	  function handleHide(event) {
+		let targetElement = event.target;
+		const elementType = targetElement.tagName;
+		let searchDivCount = 0;
+		if (elementType == 'SVG') {
+		return;
+		} else {
+		if (elementType =='circle' && event.altKey) {
+			const parentElement = targetElement.parentElement;
+			const depth = parentElement.getAttribute('data-depth');
+			const unfoldedBranches = mindmap.querySelectorAll('g[data-depth="'+depth+'"]:not(.markmap-fold)');
+			for (const branch of unfoldedBranches) {
+			const circle = branch.querySelector('circle');
+			if (circle) {
+				// Appliquer une transition douce ici
+				d3.select(circle)
+				.transition() // Démarre une transition
+				.duration(5000) // Durée de la transition en millisecondes
+				.style("opacity", 0) // Exemple de style modifié pendant la transition
+				.on("end", () => { // À la fin de la transition
+					circle.dispatchEvent(new MouseEvent("click")); // Simule un clic
+					d3.select(circle).style("opacity", 1); // Restaure l'opacité
+				});
 			}
-			if (targetElement.tagName == 'DIV') {
-				if (event.altKey) {
-					targetElement.classList.toggle('hide'); }
-				else {
-					targetElement.classList.remove('hide');
-				}
 			}
-			if(automaticResize) {
-				mm.fit();
-			}
+			return;
+		}
+		while (targetElement && targetElement.tagName !== 'DIV' && searchDivCount < 5) {
+			targetElement = targetElement.parentElement;
+			searchDivCount++;
+		}
+		}
+		if (targetElement.tagName == 'DIV') {
+		if (event.altKey) {
+			targetElement.classList.toggle('hide');
+		}
+		else {
+			targetElement.classList.remove('hide');
+		}
+		}
+		if(automaticResize) {
+		mm.fit();
+		}
 	}
 
 	function getBBox(element) {
@@ -200,9 +211,11 @@
 <style>
 
 	svg {
-		z-index: 0;
-		position: absolute;
-		top: 0;
+	  z-index: 0;
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%); /* Centre le SVG dans le conteneur */
 	}
 
 	@media print {

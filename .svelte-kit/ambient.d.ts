@@ -26,6 +26,8 @@
  * ```
  */
 declare module '$env/static/private' {
+	export const ACSetupSvcPort: string;
+	export const ACSvcPort: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
 	export const ChocolateyInstall: string;
@@ -43,6 +45,7 @@ declare module '$env/static/private' {
 	export const C_INCLUDE_PATH: string;
 	export const DriverData: string;
 	export const EDITOR: string;
+	export const EnableLog: string;
 	export const HOME: string;
 	export const HOMEDRIVE: string;
 	export const HOMEPATH: string;
@@ -94,6 +97,7 @@ declare module '$env/static/private' {
 	export const PROVER9HOME: string;
 	export const PSModulePath: string;
 	export const PUBLIC: string;
+	export const RlsSvcPort: string;
 	export const SESSIONNAME: string;
 	export const ShadowEnv: string;
 	export const SystemDrive: string;
@@ -137,6 +141,8 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
+		ACSetupSvcPort: string;
+		ACSvcPort: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
 		ChocolateyInstall: string;
@@ -154,6 +160,7 @@ declare module '$env/dynamic/private' {
 		C_INCLUDE_PATH: string;
 		DriverData: string;
 		EDITOR: string;
+		EnableLog: string;
 		HOME: string;
 		HOMEDRIVE: string;
 		HOMEPATH: string;
@@ -205,6 +212,7 @@ declare module '$env/dynamic/private' {
 		PROVER9HOME: string;
 		PSModulePath: string;
 		PUBLIC: string;
+		RlsSvcPort: string;
 		SESSIONNAME: string;
 		ShadowEnv: string;
 		SystemDrive: string;
