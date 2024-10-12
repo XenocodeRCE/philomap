@@ -71,13 +71,13 @@
 		});
 
 		const options = {
-			  duration: 0,
-			  maxWidth: maxWidth,
-			  spacingVertical: 15,
-			  paddingX: 20,
-			  autoFit: false,
-			  initialExpandLevel: initialExpandLevel,
-			  layout: 'radial',  // Ajoute l'option pour un layout radial
+		  duration: 0,
+		  maxWidth: maxWidth,
+		  spacingVertical: 15,
+		  paddingX: 20,
+		  autoFit: true,  // Enable autoFit to resize properly
+		  initialExpandLevel: initialExpandLevel,
+		  layout: 'mindmap',  // Use 'mindmap' layout to center the root and expand left/right
 		}
 		const optionsJSON = deriveOptions({
 			color: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#8c564b", "#e377c2", "#17becf", "#bcbd22"],
