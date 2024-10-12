@@ -49,62 +49,78 @@
 	$: hValue.update(n => h)
 
 	afterUpdate(() => {
-		const transformer = new Transformer();
+  const transformer = new Transformer();
 
-		const {
-			root,
-			features
-		} = transformer.transform(source);
-		const {
-			styles,
-			scripts
-		} = transformer.getUsedAssets(features);
-		const {
-			Markmap,
-			loadCSS,
-			loadJS
-		} = markmap;
+  const { root, features } = transformer.transform(source);
+  const { styles, scripts } = transformer.getUsedAssets(features);
+  const { Markmap, loadCSS, loadJS } = markmap;
 
-		if (styles) loadCSS(styles);
-		if (scripts) loadJS(scripts, {
-			getMarkmap: () => markmap
-		});
+  if (styles) loadCSS(styles);
+  if (scripts) loadJS(scripts, {
+    getMarkmap: () => markmap
+  });
 
-		const options = {
-		  duration: 0,
-		  maxWidth: maxWidth,
-		  spacingVertical: 15,
-		  paddingX: 20,
-		  autoFit: true,  // Enable autoFit to resize properly
-		  initialExpandLevel: initialExpandLevel,
-		  layout: 'mindmap',  // Use 'mindmap' layout to center the root and expand left/right
-		}
-		const optionsJSON = deriveOptions({
-			color: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#8c564b", "#e377c2", "#17becf", "#bcbd22"],
-			colorFreezeLevel: colorFreezeLevel,
-		})
-		const optionsFull = colorFreezeLevel > 0 ? {...options, ...optionsJSON} : options
-		mindmap.innerHTML = "";
-		mindmapRoot = root;
-		nodeTitle = document.createElement("title")
-		nodeTitle.innerHTML=title;
-		mindmap.appendChild(nodeTitle);
-		const styleCSS = 'svg div{margin-top:-4px;} svg a {text-decoration:none} svg foreignObject {overflow:visible;} svg strong{color:#333; font-size:0.98em!important; font-weight:500!important;} svg .hide, svg .hide *{color:transparent!important} svg .hide {background-color:#FFFFEC} svg .hide img {opacity:0} svg img[alt=h-25]{height:25px} svg img[alt=h-50]{height:50px} svg img[alt=h-75]{height:75px} svg img[alt=h-100]{height:100px} svg img[alt=h-125]{height:125px} svg img[alt=h-150]{height:150px} svg img[alt=h-175]{height:175px} svg img[alt=h-200]{height:200px} svg blockquote {width:'+widthBlockquote+'px!important; white-space: normal; text-align:justify; font-size:0.8em; line-height:1em; border:1px solid #aaa; padding:10px; border-radius:4px;'+marginLeftBlockquote+'} svg aside{font-size: 0.8em; display: inline-block!important; font-weight:normal;vertical-align: top} svg cite {font-style:inherit; font-family:serif; font-size:0.97em}'+ style;
-		const styleElement = document.createElement("style")
-		styleElement.innerHTML=styleCSS;
-		mindmap.appendChild(styleElement);
-		mm=Markmap.create('#markmap', optionsFull, root);
+  const options = {
+    duration: 0,
+    maxWidth: maxWidth,
+    spacingVertical: 15,
+    paddingX: 20,
+    autoFit: true,  // Enable autoFit to resize properly
+    initialExpandLevel: initialExpandLevel,
+    direction: 'LR',  // Set direction to Left to Right
+  };
 
-		if(openLinksInNewTab) { 
-			const links = mindmap.querySelectorAll('a');
-			links.forEach(link => {
-				link.setAttribute('target', '_blank');
-			});
-		}
+  const optionsJSON = deriveOptions({
+    color: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#8c564b", "#e377c2", "#17becf", "#bcbd22"],
+    colorFreezeLevel: colorFreezeLevel,
+  });
 
-	})
+  const optionsFull = colorFreezeLevel > 0 ? { ...options, ...optionsJSON } : options;
 
-	  function handleHide(event) {
+  mindmap.innerHTML = "";
+  mindmapRoot = root;
+  nodeTitle = document.createElement("title");
+  nodeTitle.innerHTML = title;
+  mindmap.appendChild(nodeTitle);
+
+  const styleCSS = `svg div { margin-top: -4px; } 
+                    svg a { text-decoration: none; } 
+                    svg foreignObject { overflow: visible; } 
+                    svg strong { color: #333; font-size: 0.98em !important; font-weight: 500 !important; } 
+                    svg .hide, svg .hide * { color: transparent !important; } 
+                    svg .hide { background-color: #FFFFEC; } 
+                    svg .hide img { opacity: 0; } 
+                    svg img[alt=h-25] { height: 25px; } 
+                    svg img[alt=h-50] { height: 50px; } 
+                    svg img[alt=h-75] { height: 75px; } 
+                    svg img[alt=h-100] { height: 100px; } 
+                    svg img[alt=h-125] { height: 125px; } 
+                    svg img[alt=h-150] { height: 150px; } 
+                    svg img[alt=h-175] { height: 175px; } 
+                    svg img[alt=h-200] { height: 200px; } 
+                    svg blockquote { width: ${widthBlockquote}px !important; 
+                    white-space: normal; text-align: justify; font-size: 0.8em; line-height: 1em; border: 1px solid #aaa; padding: 10px; border-radius: 4px; ${marginLeftBlockquote}; } 
+                    svg aside { font-size: 0.8em; display: inline-block !important; font-weight: normal; vertical-align: top; } 
+                    svg cite { font-style: inherit; font-family: serif; font-size: 0.97em; }` + style;
+  
+  const styleElement = document.createElement("style");
+  styleElement.innerHTML = styleCSS;
+  mindmap.appendChild(styleElement);
+
+  mm = Markmap.create('#markmap', optionsFull, root);
+
+  if (openLinksInNewTab) {
+    const links = mindmap.querySelectorAll('a');
+    links.forEach(link => {
+      link.setAttribute('target', '_blank');
+    });
+  }
+
+  // Ensure the mindmap fits the viewport
+  mm.fit();
+});
+
+	function handleHide(event) {
 		let targetElement = event.target;
 		const elementType = targetElement.tagName;
 		let searchDivCount = 0;
@@ -211,12 +227,14 @@
 <style>
 
 	svg {
-	  z-index: 0;
-	  position: absolute;
-	  top: 50%;
-	  left: 50%;
-	  transform: translate(-50%, -50%); /* Centre le SVG dans le conteneur */
-	}
+  z-index: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the SVG */
+  display: block;
+  margin: auto;
+}
 
 	@media print {
 		:global(nav) {
